@@ -120,7 +120,7 @@ def setup_logger(
     return logger
 
 
-def getLogger(
+def get_logger(
     logger_name: str = DEFAULT_LOGGER_NAME,
     default_level: int = logging.INFO,
     log_file: str | None = None,
