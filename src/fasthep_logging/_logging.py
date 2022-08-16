@@ -131,3 +131,8 @@ def get_logger(
     setup_logger(logger_name, default_level, log_file)
 
     return logger
+
+
+def getLogger(name: str = DEFAULT_LOGGER_NAME) -> logging.Logger:
+    """Compatible with the standard logging.getLogger() function"""
+    return get_logger(name)
