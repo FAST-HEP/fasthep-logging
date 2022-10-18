@@ -133,6 +133,8 @@ def get_logger(
     return logger
 
 
-def getLogger(name: str = DEFAULT_LOGGER_NAME) -> logging.Logger:  # pylint: disable=invalid-name
+def getLogger(  # pylint: disable=invalid-name
+    name: str = DEFAULT_LOGGER_NAME,
+) -> logging.Logger:
     """Compatible with the standard logging.getLogger() function"""
     return get_logger(name)
