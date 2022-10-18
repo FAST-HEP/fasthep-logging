@@ -9,14 +9,17 @@
 [![GitHub Discussion][github-discussions-badge]][github-discussions-link]
 [![Gitter][gitter-badge]][gitter-link]
 
-The FAST-HEP logging package adds two new log levels to the standard Python logging:
+The FAST-HEP logging package adds two new log levels to the standard Python
+logging:
+
 - `TRACE` is the most verbose level, and is used for debugging purposes.
-- `TIMING` is used to log timing information. Log level is between `DEBUG` and `WARNING`.
+- `TIMING` is used to log timing information. Log level is between `DEBUG` and
+  `WARNING`.
 
 In addition, this package sets a logging standard for FAST-HEP projects:
+
 - per-log-level formatting
 - log file support
-
 
 ## Example
 
@@ -33,10 +36,11 @@ log.trace("This is a verbosity level higher than DEBUG")
 
 
 from codetiming import Timer
+
 with Timer(
     text=f"Processing data took {{:.3f}}s for {file_path}",
-            logger=log.timing,  # type: ignore[attr-defined]
-        ):
+    logger=log.timing,  # type: ignore[attr-defined]
+):
     process_data(file_path)
 ```
 
