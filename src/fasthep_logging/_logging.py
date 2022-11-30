@@ -12,6 +12,8 @@ DEFAULT_DATE_FORMAT = "%Y-%m-%d"
 DEFAULT_TIME_FORMAT = "%H:%M:%S"
 TRACE = 5  # log level for trace messages, below DEBUG (10)
 TIMING = 11  # log level for timing, between DEBUG (10) and WARNING (30)
+CONSOLE_HANDLER = "fasthep-console-handler"
+FILE_HANDLER = "fasthep-file-handler"
 
 
 def log_function_factory(custom_log_level: int) -> Any:
@@ -97,22 +99,29 @@ def setup_logger(
         show_time=False,
         show_path=False,
     )
+    console_handler.name = CONSOLE_HANDLER
     console_handler.setLevel(default_level)
     console_handler.setFormatter(console_formatter)
     console_handler.formatter = console_formatter
 
     logger = logging.getLogger(logger_name)
 
-    if not log_file:
+    handler_names = [handler.name for handler in logger.handlers]
+    if not log_file and CONSOLE_HANDLER not in handler_names:
         # only log to console if no log file is specified
         logger.addHandler(console_handler)
         logger.setLevel(default_level)
+        return logger
+
+    if not log_file or FILE_HANDLER in handler_names:
+        # do not add file handler if it already exists
         return logger
 
     logfile_formatter = logging.Formatter(
         "%(asctime)s [%(name)s]  %(levelname)s: %(message)s"
     )
     logfile_handler = logging.FileHandler(log_file)
+    logfile_handler.name = FILE_HANDLER
     logfile_handler.setLevel(default_level)
     logfile_handler.setFormatter(logfile_formatter)
     logger.addHandler(logfile_handler)
