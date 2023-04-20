@@ -72,26 +72,7 @@ class LevelFormatter(logging.Formatter):
         return super().format(record)
 
 
-def setup_logger(
-    logger_name: str = DEFAULT_LOGGER_NAME,
-    default_level: int = logging.INFO,
-    log_file: str | None = None,
-) -> logging.Logger:
-    """Sets up a logging.Logger with specified log level and log file.
-    If log_file is None, logs to stdout."""
-    console_formatter = LevelFormatter(
-        fmt="%(asctime)s [%(name)s]  %(levelname)s: %(message)s",
-        datefmt=f"[{DEFAULT_DATE_FORMAT} {DEFAULT_TIME_FORMAT}]",
-        level_fmts={
-            logging.INFO: "%(message)s",
-            logging.WARNING: "[bold dark_orange]%(levelname)s[/]: %(message)s",
-            logging.ERROR: "[bold red]%(levelname)s[/]: %(message)s",
-            logging.DEBUG: "[bold hot_pink]%(levelname)s[/]: %(message)s",
-            FASTHEPLogger.TRACE: "[bold hot_pink]%(levelname)s[/]: %(message)s",
-            FASTHEPLogger.TIMING: "[bold hot_pink]%(levelname)s[/]: %(message)s",
-            logging.CRITICAL: "[bold blink bright_red]%(levelname)s[/]: %(message)s",
-        },
-    )
+def create_console_handler(default_level: int = logging.INFO):
     console_handler = RichHandler(
         # rich_tracebacks=True, # does not work with custom formatters
         markup=True,
@@ -99,16 +80,44 @@ def setup_logger(
         show_time=False,
         show_path=False,
     )
+
+    console_formatter = LevelFormatter(
+        fmt="%(asctime)s [%(name)s]  %(levelname)s: %(message)s",
+        datefmt=f"[{DEFAULT_DATE_FORMAT} {DEFAULT_TIME_FORMAT}]",
+        level_fmts={
+                logging.INFO: "%(message)s",
+                logging.WARNING: "[bold dark_orange]%(levelname)s[/]: %(message)s",
+                logging.ERROR: "[bold red]%(levelname)s[/]: %(message)s",
+                logging.DEBUG: "[bold hot_pink]%(levelname)s[/]: %(message)s",
+                FASTHEPLogger.TRACE: "[bold hot_pink]%(levelname)s[/]: %(message)s",
+                FASTHEPLogger.TIMING: "[bold hot_pink]%(levelname)s[/]: %(message)s",
+                logging.CRITICAL: "[bold blink bright_red]%(levelname)s[/]: %(message)s",
+        },
+    )
+
     console_handler.name = CONSOLE_HANDLER
     console_handler.setLevel(default_level)
     console_handler.setFormatter(console_formatter)
     console_handler.formatter = console_formatter
 
+    return console_handler
+
+
+def setup_logger(
+    logger_name: str = DEFAULT_LOGGER_NAME,
+    default_level: int = logging.INFO,
+    log_file: str | None = None,
+) -> logging.Logger:
+    """Sets up a logging.Logger with specified log level and log file.
+    If log_file is None, logs to stdout."""
+    logging.setLoggerClass(FASTHEPLogger)
     logger = logging.getLogger(logger_name)
 
     handler_names = [handler.name for handler in logger.handlers]
     if not log_file and CONSOLE_HANDLER not in handler_names:
         # only log to console if no log file is specified
+        console_handler = create_console_handler(default_level)
+
         logger.addHandler(console_handler)
         logger.setLevel(default_level)
         return logger
@@ -135,11 +144,8 @@ def get_logger(
     log_file: str | None = None,
 ) -> logging.Logger:
     """Returns the logger for the FAST-HEP toolkit"""
-    logging.setLoggerClass(FASTHEPLogger)
-    logger = logging.getLogger(logger_name)
     setup_logger(logger_name, default_level, log_file)
-
-    return logger
+    return logging.getLogger(logger_name)
 
 
 def getLogger(  # pylint: disable=invalid-name
