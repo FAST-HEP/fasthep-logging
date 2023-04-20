@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import threading
 from typing import Any
 
 from rich.logging import RichHandler
@@ -14,6 +15,18 @@ TRACE = 5  # log level for trace messages, below DEBUG (10)
 TIMING = 11  # log level for timing, between DEBUG (10) and WARNING (30)
 CONSOLE_HANDLER = "fasthep-console-handler"
 FILE_HANDLER = "fasthep-file-handler"
+
+_lock = threading.RLock()
+
+def _acquire_lock():
+    """Acquire the global lock"""
+    if _lock:
+        _lock.acquire()
+
+def _release_lock():
+    """Release the global lock"""
+    if _lock:
+        _lock.release()
 
 
 def log_function_factory(custom_log_level: int) -> Any:
@@ -113,6 +126,9 @@ def setup_logger(
     logging.setLoggerClass(FASTHEPLogger)
     logger = logging.getLogger(logger_name)
 
+    _acquire_lock()
+    logger.propagate = False
+
     handler_names = [handler.name for handler in logger.handlers]
     if not log_file and CONSOLE_HANDLER not in handler_names:
         # only log to console if no log file is specified
@@ -120,10 +136,12 @@ def setup_logger(
 
         logger.addHandler(console_handler)
         logger.setLevel(default_level)
+        _release_lock()
         return logger
 
     if not log_file or FILE_HANDLER in handler_names:
         # do not add file handler if it already exists
+        _release_lock()
         return logger
 
     logfile_formatter = logging.Formatter(
@@ -135,6 +153,7 @@ def setup_logger(
     logfile_handler.setFormatter(logfile_formatter)
     logger.addHandler(logfile_handler)
     logger.setLevel(default_level)
+    _release_lock()
     return logger
 
 
