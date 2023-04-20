@@ -163,7 +163,9 @@ def get_logger(
     log_file: str | None = None,
 ) -> logging.Logger:
     """Returns the logger for the FAST-HEP toolkit"""
+    tmp_class = logging.getLoggerClass()
     setup_logger(logger_name, default_level, log_file)
+    logging.setLoggerClass(tmp_class)
     return logging.getLogger(logger_name)
 
 
