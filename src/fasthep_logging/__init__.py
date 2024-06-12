@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from ._logging import DEFAULT_LOG_LEVEL, TIMING, TRACE, get_logger, getLogger
 
-__version__ = "0.1.1"
+from ._version import version as __version__
 
 __all__ = (
     "__version__",
