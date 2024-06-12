@@ -19,6 +19,7 @@ FILE_HANDLER = "fasthep-file-handler"
 
 _lock = threading.RLock()
 
+
 def log_function_factory(custom_log_level: int) -> Any:
     """Factory function for creating a function that logs at a custom level"""
 
@@ -76,6 +77,7 @@ class LevelFormatter(logging.Formatter):
 
 
 def create_console_handler(default_level: int = logging.INFO) -> RichHandler:
+    """Create a RichHandler for logging to console with custom formatting."""
     console_handler = RichHandler(
         # rich_tracebacks=True, # does not work with custom formatters
         markup=True,
