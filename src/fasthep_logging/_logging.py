@@ -18,14 +18,16 @@ FILE_HANDLER = "fasthep-file-handler"
 
 _lock = threading.RLock()
 
-def _acquire_lock():
+
+def _acquire_lock() -> None:
     """Acquire the global lock"""
-    if _lock:
+    if _lock is not None:
         _lock.acquire()
 
-def _release_lock():
+
+def _release_lock() -> None:
     """Release the global lock"""
-    if _lock:
+    if _lock is not None:
         _lock.release()
 
 
@@ -85,7 +87,7 @@ class LevelFormatter(logging.Formatter):
         return super().format(record)
 
 
-def create_console_handler(default_level: int = logging.INFO):
+def create_console_handler(default_level: int = logging.INFO) -> RichHandler:
     console_handler = RichHandler(
         # rich_tracebacks=True, # does not work with custom formatters
         markup=True,
@@ -98,13 +100,13 @@ def create_console_handler(default_level: int = logging.INFO):
         fmt="%(asctime)s [%(name)s]  %(levelname)s: %(message)s",
         datefmt=f"[{DEFAULT_DATE_FORMAT} {DEFAULT_TIME_FORMAT}]",
         level_fmts={
-                logging.INFO: "%(message)s",
-                logging.WARNING: "[bold dark_orange]%(levelname)s[/]: %(message)s",
-                logging.ERROR: "[bold red]%(levelname)s[/]: %(message)s",
-                logging.DEBUG: "[bold hot_pink]%(levelname)s[/]: %(message)s",
-                FASTHEPLogger.TRACE: "[bold hot_pink]%(levelname)s[/]: %(message)s",
-                FASTHEPLogger.TIMING: "[bold hot_pink]%(levelname)s[/]: %(message)s",
-                logging.CRITICAL: "[bold blink bright_red]%(levelname)s[/]: %(message)s",
+            logging.INFO: "%(message)s",
+            logging.WARNING: "[bold dark_orange]%(levelname)s[/]: %(message)s",
+            logging.ERROR: "[bold red]%(levelname)s[/]: %(message)s",
+            logging.DEBUG: "[bold hot_pink]%(levelname)s[/]: %(message)s",
+            FASTHEPLogger.TRACE: "[bold hot_pink]%(levelname)s[/]: %(message)s",
+            FASTHEPLogger.TIMING: "[bold hot_pink]%(levelname)s[/]: %(message)s",
+            logging.CRITICAL: "[bold blink bright_red]%(levelname)s[/]: %(message)s",
         },
     )
 

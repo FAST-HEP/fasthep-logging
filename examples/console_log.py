@@ -1,6 +1,11 @@
-from fasthep_logging import TIMING, TRACE
+from __future__ import annotations
+
+from time import sleep
+
+from codetiming import Timer
+
+from fasthep_logging import TIMING
 from fasthep_logging import get_logger as flogger
-from fasthep_logging._logging import FASTHEPLogger
 
 logger = flogger("console_log", TIMING)
 
@@ -12,8 +17,6 @@ logger.trace("This is a trace message")
 
 # example with codetiming
 
-from codetiming import Timer
-from time import sleep
 with Timer(
     text="Elapsed time: {:.2f} seconds for sleeping 2 seconds",
     logger=logger.timing,
