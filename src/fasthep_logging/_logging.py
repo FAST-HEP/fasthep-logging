@@ -1,4 +1,5 @@
 """Logger for the FAST-HEP toolkit"""
+
 from __future__ import annotations
 
 import logging
@@ -17,19 +18,6 @@ CONSOLE_HANDLER = "fasthep-console-handler"
 FILE_HANDLER = "fasthep-file-handler"
 
 _lock = threading.RLock()
-
-
-def _acquire_lock() -> None:
-    """Acquire the global lock"""
-    if _lock is not None:
-        _lock.acquire()
-
-
-def _release_lock() -> None:
-    """Release the global lock"""
-    if _lock is not None:
-        _lock.release()
-
 
 def log_function_factory(custom_log_level: int) -> Any:
     """Factory function for creating a function that logs at a custom level"""
@@ -128,34 +116,33 @@ def setup_logger(
     logging.setLoggerClass(FASTHEPLogger)
     logger = logging.getLogger(logger_name)
 
-    _acquire_lock()
-    logger.propagate = False
+    with _lock:
+        logger.propagate = False
 
-    handler_names = [handler.name for handler in logger.handlers]
-    if not log_file and CONSOLE_HANDLER not in handler_names:
-        # only log to console if no log file is specified
-        console_handler = create_console_handler(default_level)
+        handler_names = [handler.name for handler in logger.handlers]
+        if not log_file and CONSOLE_HANDLER not in handler_names:
+            # only log to console if no log file is specified
+            console_handler = create_console_handler(default_level)
 
-        logger.addHandler(console_handler)
+            logger.addHandler(console_handler)
+            logger.setLevel(default_level)
+
+            return logger
+
+        if not log_file or FILE_HANDLER in handler_names:
+            # do not add file handler if it already exists
+            return logger
+
+        logfile_formatter = logging.Formatter(
+            "%(asctime)s [%(name)s]  %(levelname)s: %(message)s"
+        )
+        logfile_handler = logging.FileHandler(log_file)
+        logfile_handler.name = FILE_HANDLER
+        logfile_handler.setLevel(default_level)
+        logfile_handler.setFormatter(logfile_formatter)
+        logger.addHandler(logfile_handler)
         logger.setLevel(default_level)
-        _release_lock()
-        return logger
 
-    if not log_file or FILE_HANDLER in handler_names:
-        # do not add file handler if it already exists
-        _release_lock()
-        return logger
-
-    logfile_formatter = logging.Formatter(
-        "%(asctime)s [%(name)s]  %(levelname)s: %(message)s"
-    )
-    logfile_handler = logging.FileHandler(log_file)
-    logfile_handler.name = FILE_HANDLER
-    logfile_handler.setLevel(default_level)
-    logfile_handler.setFormatter(logfile_formatter)
-    logger.addHandler(logfile_handler)
-    logger.setLevel(default_level)
-    _release_lock()
     return logger
 
 
