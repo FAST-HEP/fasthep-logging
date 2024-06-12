@@ -15,8 +15,8 @@ def test_getLogger() -> None:
     logger = m.get_logger("TESTLOGGER")
     assert logger.name == "TESTLOGGER"
     assert logger.level == m.DEFAULT_LOG_LEVEL
-    assert logger.TRACE == m.TRACE
-    assert logger.TIMING == m.TIMING
+    assert logger.TRACE == m.TRACE  # type: ignore[attr-defined]
+    assert logger.TIMING == m.TIMING  # type: ignore[attr-defined]
 
 
 @pytest.mark.parametrize(
