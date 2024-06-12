@@ -92,6 +92,11 @@ warn_unreachable = true
 module = ["rich.*"]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = ["fasthep_logging.*"]
+implicit_reexport = true
+ignore_missing_imports = true
+
 [tool.coverage]
 run.source = ["fasthep_flow"]
 port.exclude_lines = [

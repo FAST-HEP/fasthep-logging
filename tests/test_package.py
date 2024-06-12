@@ -15,27 +15,23 @@ def test_getLogger() -> None:
     logger = m.get_logger("TESTLOGGER")
     assert logger.name == "TESTLOGGER"
     assert logger.level == m.DEFAULT_LOG_LEVEL
-    assert logger.TRACE == m.TRACE  # type: ignore[attr-defined]
-    assert logger.TIMING == m.TIMING  # type: ignore[attr-defined]
+    assert logger.TRACE == m.TRACE
+    assert logger.TIMING == m.TIMING
 
 
-def test_trace(caplog: pytest.LogCaptureFixture) -> None:
+@pytest.mark.parametrize(
+    ("level", "func"),
+    [(logging.INFO, "info"), (m.TRACE, "trace"), (m.TIMING, "timing")],
+)
+def test_logging(caplog: pytest.LogCaptureFixture, level: int, func: str) -> None:
     logger = m.get_logger("TESTLOGGER")
-    caplog.set_level(logging.TRACE, logger="TESTLOGGER")  # type: ignore[attr-defined]
-    logger.trace("test")  # type: ignore[attr-defined]
+    logger.propagate = True
+    caplog.set_level(level, logger="TESTLOGGER")
+
+    getattr(logger, func)("test")
+
     assert len(caplog.records) == 1
     record = caplog.records[0]
     assert record.name == "TESTLOGGER"
-    assert record.levelname == "TRACE"
-    assert record.message == "test"
-
-
-def test_timing(caplog: pytest.LogCaptureFixture) -> None:
-    logger = m.get_logger("TESTLOGGER")
-    caplog.set_level(logging.TIMING, logger="TESTLOGGER")  # type: ignore[attr-defined]
-    logger.timing("test")  # type: ignore[attr-defined]
-    assert len(caplog.records) == 1
-    record = caplog.records[0]
-    assert record.name == "TESTLOGGER"
-    assert record.levelname == "TIMING"
+    assert record.levelname == logging.getLevelName(level)
     assert record.message == "test"
